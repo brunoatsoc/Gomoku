@@ -5,8 +5,8 @@ import xmlrpc.server
 class Gomoku:
     # Definição dos atributos da classe
     def __init__(self):
-        self.tamanho = 16  # Tamanho do tabuleiro (16x16)
-        self.tabuleiro = [[" " for _ in range(self.tamanho)] for _ in range(self.tamanho)] # Cria um tabuleiro vazio representado como uma matriz 16x16
+        self.tamanho = 15  # Tamanho do tabuleiro (15x15)
+        self.tabuleiro = [[" " for _ in range(self.tamanho)] for _ in range(self.tamanho)] # Cria um tabuleiro vazio representado como uma matriz 15x15
         self.jogadores = [] # Lista de jogadores(Maximo de 2 jogadores)
         self.jogador_atual = 0  # Variável para guardar o jogador atual
         self.jogo_em_andamento = True # Variéavel para aber se o jogo acabou
@@ -16,6 +16,9 @@ class Gomoku:
     def registrar_jogador(self, nome):
         # Verifica se já tem dois jogadores registrados
         if len(self.jogadores) < 2:
+            if nome in self.jogadores:
+                return f"Jogador com o nome '{nome}' já registrado, escolha outro nome."
+
             self.jogadores.append(nome)
             return f"Jogador {nome} registrado com sucesso!"
         else:
@@ -35,20 +38,21 @@ class Gomoku:
     def verificar_vencedor(self, linha, coluna):
         # Verifica combinações de 5 peças consecutivas
         direcoes = [
-            (1, 0), (0, 1), (1, 1), (1, -1)  # Horizontal, vertical, diagonal
+            (1, 0), (0, 1), (1, 1), (1, -1)  # Horizontal, vertical, diagonal esquerda e direita
         ]
         jogador = self.tabuleiro[linha][coluna]
+
         for dx, dy in direcoes:
-            contador = 1
+            contador = 1 # Contador para a quantidade de X ou O iguais tem em cada direção
             # Verifica em uma direção
             for i in range(1, 5):
                 x = coluna + dx * i
                 y = linha + dy * i
-                if 0 <= x < self.tamanho and 0 <= y < self.tamanho:
-                    if self.tabuleiro[y][x] == jogador:
-                        contador += 1
+                if 0 <= x < self.tamanho and 0 <= y < self.tamanho: # Verifica se as posições ainda estão dentro do range do tabuleiro
+                    if self.tabuleiro[y][x] == jogador: # Verifica se a posição atual do tabuleiro pertence ao mesmo jogador d ajogada atual
+                        contador += 1 # Incrementa 1 caso o jogador seja o mesmo
                     else:
-                        break
+                        break # Caso não seja ele sai do laço de repetição mais interno e checa em outra direção
             # Verifica na direção oposta
             for i in range(1, 5):
                 x = coluna - dx * i
@@ -58,6 +62,7 @@ class Gomoku:
                         contador += 1
                     else:
                         break
+            # Verifica se o contador tem 5 ou mais ocorrencias do mesmo jogador, caso tenha 5 ou mais ele ganha
             if contador >= 5:
                 return True
         return False
@@ -67,7 +72,7 @@ class Gomoku:
         # Se o jogo estiver em andamento o codigo sera executado
         if self.jogo_em_andamento and self.jogadores[self.jogador_atual] == jogador:
             # Caso o jogador faça uma jogada invalida ele recebera uma mensagem de jogada invalida e terá que jogar de novo
-            if (linha > 15 or linha < 0) or (coluna > 15 or linha < 0):
+            if (linha > 15 or linha < 0) or (coluna > 15 or coluna < 0):
                 return "Posição invalida, jogue novamente!"
             else:
                 # Verifica se a posição está vazia(não foi escolhida por algum jogador préviamente)
@@ -91,7 +96,7 @@ class Gomoku:
             return "Não é o turno deste jogador." # Caso o jogador tente jogar fora da sua vez
 
 # Iniciando o servidor RPC
-servidor = xmlrpc.server.SimpleXMLRPCServer(("localhost", 8080)) # Seta o IP e a porta em que o jogo vai rodar
+servidor = xmlrpc.server.SimpleXMLRPCServer(("localhost", 8080)) # Seta o IP e a porta em que o servidor vai rodar
 servidor.register_instance(Gomoku()) # Registra uma instancia da classe Gomoku para o servidor usar
 print("Servidor do jogo Gomoku RPC rodando...") # Mostra uma mansagem de que o servidor está rodando
 servidor.serve_forever()

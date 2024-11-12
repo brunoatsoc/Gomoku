@@ -2,7 +2,7 @@
 import xmlrpc.client
 import time
 
-# Faz conexão com servidor
+# Faz conexão com servidor locals
 servidor = xmlrpc.client.ServerProxy("http://localhost:8080/")
 # Pede para o usuário digitar o nome para se cadastrar
 nome = input("Digite o seu nome para se registrar: ")
@@ -16,7 +16,7 @@ def imprimir_tabuleiro(tabuleiro):
     tamanho = len(tabuleiro) # Pega o tamanho do tabuleiro recebido da função
     linha_delimitadora = "+" + "---+" * tamanho  # Cria a linha delimitadora baseada no tamanho do tabuleiro
     j = 1 # Contador para a númeração de linhas qua vão se mostras na tela
-    print("  1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16") # Imprime a númeração de colunas
+    print("  1   2   3   4   5   6   7   8   9   10  11  12  13  14  15") # Imprime a númeração de colunas
 
     # Laço de repetição para gerar o tabuleiro
     for linha in tabuleiro:
